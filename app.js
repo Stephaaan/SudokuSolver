@@ -67,22 +67,25 @@ const printSudoku = sudoku => {
         }
     })
 }
+const getOptions = cell => Array.isArray(cell)?[...cell]:[...possibleOptions];
+
+const checkIfIsPossibleToFillCell = (sudoku, x, y, option) => {
+    const inRow = checkRowForOccurency(sudoku[x],option);
+    const inColumn = checkColumnForOccurency(sudoku, y, option)
+    const inCell = checkCellForOccurency(sudoku, getCoords(x, y), option);
+    return !inRow && !inColumn && !inCell
+}
+
 do{
     sudoku.map((row, indexX) => {
         row.map((cell, indexY) => {
             let candidates = [];
             if(sudoku[indexX][indexY] === 0 || Array.isArray(sudoku[indexX][indexY])){
-                if(Array.isArray(sudoku[indexX][indexY])){
-                    options = [...sudoku[indexX][indexY]]
-                }
+                options = getOptions(sudoku[indexX][indexY]);  
                 options.forEach(option => {
-                    const inRow = checkRowForOccurency(row,option);
-                    const inColumn = checkColumnForOccurency(sudoku, indexY, option)
-                    const inCell = checkCellForOccurency(sudoku, getCoords(indexX, indexY), option);
-                    if(!inRow && !inColumn && !inCell){
+                    if(checkIfIsPossibleToFillCell(sudoku, indexX, indexY, option)){
                         candidates = [...candidates, option]   
                     }
-                    
                 })
                 if(candidates.length === 1){
                     sudoku[indexX][indexY] = candidates[0];
