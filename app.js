@@ -10,12 +10,15 @@ const sudoku =  [
     [6,4,0,1,8,0,0,0,3]
 ];
 
-const possibleOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+const possibleOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+let options = [...possibleOptions];
 
 const isFinished = sudoku => {
     let countOfUnfinished = 0;
     sudoku.map(row=>row.map(cell => {
-        (cell===0)?countOfUnfinished++:"";
+        if(cell===0 || Array.isArray(cell)){
+            countOfUnfinished++
+        };
         return cell;
     }))
     return !countOfUnfinished;
@@ -68,8 +71,11 @@ do{
     sudoku.map((row, indexX) => {
         row.map((cell, indexY) => {
             let candidates = [];
-            if(sudoku[indexX][indexY] === 0){
-                possibleOptions.forEach(option => {
+            if(sudoku[indexX][indexY] === 0 || Array.isArray(sudoku[indexX][indexY])){
+                if(Array.isArray(sudoku[indexX][indexY])){
+                    options = [...sudoku[indexX][indexY]]
+                }
+                options.forEach(option => {
                     const inRow = checkRowForOccurency(row,option);
                     const inColumn = checkColumnForOccurency(sudoku, indexY, option)
                     const inCell = checkCellForOccurency(sudoku, getCoords(indexX, indexY), option);
@@ -80,11 +86,13 @@ do{
                 })
                 if(candidates.length === 1){
                     sudoku[indexX][indexY] = candidates[0];
+                }else{
+                    sudoku[indexX][indexY] = candidates;
                 }
             }
         })
     })
-   
+    
 }while(!isFinished(sudoku));
 printSudoku(sudoku);  
 
