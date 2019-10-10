@@ -1,15 +1,3 @@
-const sudoku =  [
-    [1,0,0,0,2,6,0,3,9],
-    [0,0,8,7,0,0,6,0,1],
-    [0,0,0,0,0,0,2,0,0],
-    [4,0,0,9,0,0,5,1,6],
-    [0,0,0,0,0,0,0,0,0],
-    [7,9,6,0,0,4,0,0,8],
-    [0,0,9,0,0,0,0,0,0],
-    [3,0,1,0,0,2,9,0,0],
-    [6,4,0,1,8,0,0,0,3]
-];
-
 const possibleOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 let options = [...possibleOptions];
 
@@ -45,14 +33,11 @@ const checkCellForOccurency = (sudoku, startCoords, searchNumber) => {
 }
 
 
-const getCoords = (x, y) => {
-    coordX = x<3?0:x<6?3:6;
-    coordY = y<3?0:y<6?3:6;
-    return {
-        x:coordX,
-        y:coordY
-    }
-}
+const getCoords = (x, y) => ({
+    x:x<3?0:x<6?3:6,
+    y:y<3?0:y<6?3:6
+})
+
 const printSudoku = sudoku => {
     sudoku.forEach((row, indexX) => {
       row.forEach((item, indexY) => {
@@ -69,33 +54,26 @@ const printSudoku = sudoku => {
 }
 const getOptions = cell => Array.isArray(cell)?[...cell]:[...possibleOptions];
 
-const checkIfIsPossibleToFillCell = (sudoku, x, y, option) => {
-    const inRow = checkRowForOccurency(sudoku[x],option);
-    const inColumn = checkColumnForOccurency(sudoku, y, option)
-    const inCell = checkCellForOccurency(sudoku, getCoords(x, y), option);
-    return !inRow && !inColumn && !inCell
-}
+const checkIfIsPossibleToFillCell = (sudoku, x, y, option) => !checkRowForOccurency(sudoku[x],option) && 
+                                                              !checkColumnForOccurency(sudoku, y, option) && 
+                                                              !checkCellForOccurency(sudoku, getCoords(x, y), option)
 
-do{
-    sudoku.map((row, indexX) => {
-        row.map((cell, indexY) => {
-            let candidates = [];
-            if(sudoku[indexX][indexY] === 0 || Array.isArray(sudoku[indexX][indexY])){
-                options = getOptions(sudoku[indexX][indexY]);  
-                options.forEach(option => {
-                    if(checkIfIsPossibleToFillCell(sudoku, indexX, indexY, option)){
-                        candidates = [...candidates, option]   
-                    }
-                })
-                if(candidates.length === 1){
-                    sudoku[indexX][indexY] = candidates[0];
-                }else{
-                    sudoku[indexX][indexY] = candidates;
+const solveSudoku = unsolvedSudoku => {
+    let sudoku = [...unsolvedSudoku];
+    do{
+        sudoku.forEach((row, indexX) => {
+            row.forEach((cell, indexY) => {
+                if(cell === 0 || Array.isArray(cell)){
+                    let candidates = [];
+                    getOptions(cell).forEach(option => candidates = checkIfIsPossibleToFillCell(sudoku, indexX, indexY, option)?[...candidates, option]:[...candidates])
+                    sudoku[indexX][indexY] = candidates.length === 1?candidates[0]:candidates; 
+                    //TODO: dorobit upgrade ze zovsadial vymazat to cislo candidates[0] 
                 }
-            }
+            })
         })
-    })
-    
-}while(!isFinished(sudoku));
-printSudoku(sudoku);  
-
+    }while(!isFinished(sudoku));
+    return sudoku;  
+}
+module.exports = {
+    solveSudoku
+}
